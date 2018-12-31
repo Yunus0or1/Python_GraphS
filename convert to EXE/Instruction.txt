@@ -1,0 +1,2 @@
+1. Browse to this directory by cmd.
+2. Write this command : python setup.py build
