@@ -1,1 +1,0 @@
-plt.show() in StatisticalInput point you have to add this.
