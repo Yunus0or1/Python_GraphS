@@ -339,7 +339,7 @@ class StatisticalInputPoint(tk.Frame):
                 else:
                     f.savefig(pdfFileName + ".pdf", bbox_inches='tight')
 
-
+            plt.show()
 
 
 class StatisticalInputRange(tk.Frame):

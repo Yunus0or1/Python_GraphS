@@ -19,7 +19,7 @@ packages = ["tkinter","matplotlib.pyplot","numpy","math","mysql.connector","djan
 options = {
     'build_exe': {
         'packages':packages,
-        "include_files": ["tcl86t.dll", "tk86t.dll","GraphS.ico"],
+        "include_files": ["tcl86t.dll", "tk86t.dll"],
 
     },
 }
