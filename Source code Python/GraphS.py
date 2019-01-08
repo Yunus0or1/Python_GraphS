@@ -18,7 +18,7 @@ class graphS(tk.Tk):
         tk.Tk.__init__(self, *args, **kwargs)
 
         self.title_font = tkfont.Font(family='Helvetica', size=18, weight="bold", slant="italic")
-        self.geometry("600x600")
+        self.geometry("600x700")
         self.resizable(0,0)
         self.title("GraphS A simple graph simulation software")
 
@@ -153,6 +153,15 @@ class PointInput(tk.Frame):
         e = tk.Entry(self, textvariable=graphSize,width=58)
         e.pack(pady =10)
 
+
+        label = tk.Label(self, text="X and Y labels ",
+                         font=(controller.title_font,10),anchor='w')
+        label.pack(side="top",fill='both',padx=70, pady=10)
+
+        both_labels = tk.StringVar()
+        e = tk.Entry(self, textvariable=both_labels,width=58)
+        e.pack(pady =10)
+
         button = tk.Button(self, text="Draw the points only",anchor='w',
                            command=lambda: retrieve_input(1),padx=70,pady = 10)
         button.pack()
@@ -173,6 +182,7 @@ class PointInput(tk.Frame):
             inputValue = inputValue.replace(',',' ')
             inputData = inputValue.split()
 
+            labels_name = both_labels.get()
             pdfFileName = pdfFile.get()
             graphDimension = graphSize.get()
 
@@ -184,6 +194,16 @@ class PointInput(tk.Frame):
                 a = graphDimension.split()
                 for i in range(0,len(a)):
                     gS.append(int(a[i]))
+
+            label = []
+            if  labels_name== "" :
+                label.append("X-Data")
+                label.append("Frequency")
+            else :
+                a = labels_name.split()
+                for i in range(0,len(a)):
+                    label.append(a[i])
+
 
 
 
@@ -207,15 +227,15 @@ class PointInput(tk.Frame):
             plt.rcParams["figure.figsize"] = (gS[0], gS[1])
             f = plt.figure()
             plt.plot(x, y, linewidth=3)
-            plt.xlabel("X Axis ->", fontsize=10)
+            plt.xlabel(label[0], fontsize=10)
 
             # Set y axes label.
-            plt.ylabel("Y Axis ->", fontsize=10)
+            plt.ylabel(label[1], fontsize=10)
 
             # Set the x, y axis tick marks text size.
             plt.tick_params(axis='both', labelsize=9)
             plt.xticks(np.arange(min(x), max(x) + 1, 1.0))
-            plt.yticks(np.arange(min(y), max(x) + 1, 1.0))
+            plt.yticks(np.arange(min(y), max(y) + 1, 1.0))
             ax = plt.subplot()
             ax.axhline(y=0, color='k')
             ax.axvline(x=0, color='k')
@@ -262,6 +282,13 @@ class StatisticalInputPoint(tk.Frame):
         e = tk.Entry(self, textvariable=graphSize, width=58)
         e.pack(pady=10)
 
+        label = tk.Label(self, text="X and Y labels ",
+                         font=(controller.title_font, 10), anchor='w')
+        label.pack(side="top", fill='both', padx=70, pady=10)
+
+        both_labels = tk.StringVar()
+        e = tk.Entry(self, textvariable=both_labels, width=58)
+        e.pack(pady=10)
 
         button = tk.Button(self, text="Draw the Bar diagram", anchor='w',
                            command=lambda: retrieve_input(1), padx=70, pady=10)
@@ -282,16 +309,26 @@ class StatisticalInputPoint(tk.Frame):
             inputData = inputValue.split()
 
 
+            labels_name = both_labels.get()
             graphDimension = graphSize.get()
 
             gS = []
-            if graphDimension == "":
+            if  graphDimension== "" :
                 gS.append(5)
                 gS.append(5)
-            else:
+            else :
                 a = graphDimension.split()
-                for i in range(0, len(a)):
+                for i in range(0,len(a)):
                     gS.append(int(a[i]))
+
+            label = []
+            if  labels_name== "" :
+                label.append("X-Data")
+                label.append("Frequency")
+            else :
+                a = labels_name.split()
+                for i in range(0,len(a)):
+                    label.append(a[i])
 
             #Finish dimension of graph
 
@@ -333,8 +370,8 @@ class StatisticalInputPoint(tk.Frame):
             plt.bar(x, graph_dataY, align='center', alpha=0.5)
             plt.xticks(x, graph_dataX)
             plt.yticks(np.arange(min(graph_dataY), max(graph_dataY) + 1, 1))
-            plt.xlabel('Range')
-            plt.ylabel('Frequency')
+            plt.xlabel(label[0])
+            plt.ylabel(label[1])
 
 
 
@@ -380,6 +417,11 @@ class StatisticalInputRange(tk.Frame):
         e = tk.Entry(self, textvariable=graphSize, width=58)
         e.pack(pady=10)
 
+        label = tk.Label(self, text="X and Y labels ",font=(controller.title_font, 10), anchor='w')
+        label.pack(side="top", fill='both', padx=70, pady=10)
+        both_labels = tk.StringVar()
+        e = tk.Entry(self, textvariable=both_labels, width=58)
+        e.pack(pady=10)
 
         button = tk.Button(self, text="Draw Bar diagram", anchor='w',
                            command=lambda: retrieve_input(1), padx=50, pady=7)
@@ -440,16 +482,26 @@ class StatisticalInputRange(tk.Frame):
 
 
 
+            labels_name = both_labels.get()
             graphDimension = graphSize.get()
 
             gS = []
-            if graphDimension == "":
+            if  graphDimension== "" :
                 gS.append(5)
                 gS.append(5)
-            else:
+            else :
                 a = graphDimension.split()
-                for i in range(0, len(a)):
+                for i in range(0,len(a)):
                     gS.append(int(a[i]))
+
+            label = []
+            if  labels_name== "" :
+                label.append("X-Data")
+                label.append("Frequency")
+            else :
+                a = labels_name.split()
+                for i in range(0,len(a)):
+                    label.append(a[i])
 
             #Finish dimension of graph
 
@@ -462,8 +514,8 @@ class StatisticalInputRange(tk.Frame):
                 x = np.arange(len(graph_dataX))
                 plt.bar(x, graph_dataY, align='center', alpha=0.5)
                 plt.xticks(x, graph_dataX)
-                plt.xlabel('Range')
-                plt.ylabel('Frequency')
+                plt.xlabel(label[0])
+                plt.ylabel(label[1])
                 ax = plt.subplot()
                 ax.axhline(y=0, color='k')
                 plt.show()
@@ -490,8 +542,8 @@ class StatisticalInputRange(tk.Frame):
                 x = np.arange(len(graph_dataX))
                 plt.bar(x, graph_dataY, align='center', alpha=0.5)
                 plt.xticks(x, graph_dataX)
-                plt.xlabel('Range')
-                plt.ylabel('Frequency')
+                plt.xlabel(label[0])
+                plt.ylabel(label[1])
                 ax = plt.subplot(211)
                 ax.axhline(y=0, color='k')
                 plt.title(("Bar Diagram"))
@@ -517,8 +569,8 @@ class StatisticalInputRange(tk.Frame):
                 x = np.arange(len(graph_dataX))
                 plt.bar(x, graph_dataY, align='center', alpha=0.5)
                 plt.xticks(x, graph_dataX)
-                plt.xlabel('Range')
-                plt.ylabel('Frequency')
+                plt.xlabel(label[0])
+                plt.ylabel(label[1])
                 ax = plt.subplot(211)
                 ax.axhline(y=0, color='k')
                 plt.title(("Bar Diagram"))
@@ -547,8 +599,8 @@ class StatisticalInputRange(tk.Frame):
                 x = np.arange(len(graph_dataX))
                 plt.bar(x, graph_dataY, align='center', alpha=0.5)
                 plt.xticks(x, graph_dataX)
-                plt.xlabel('Range')
-                plt.ylabel('Frequency')
+                plt.xlabel(label[0])
+                plt.ylabel(label[1])
                 ax = plt.subplot()
                 ax.axhline(y=0, color='k')
 
@@ -744,6 +796,12 @@ class DatabaseInput_SecondPage(tk.Frame):
         e.pack(pady=10)
 
 
+        label = tk.Label(self, text="X and Y labels",font=(self.controller.title_font, 10), anchor='w')
+        label.pack(side="top", fill='both', padx=70, pady=10)
+        both_labels = tk.StringVar()
+        e = tk.Entry(self, textvariable=both_labels, width=58)
+        e.pack(pady=10)
+
         #Button show
 
 
@@ -858,16 +916,26 @@ class DatabaseInput_SecondPage(tk.Frame):
 
 
 
+            labels_name = both_labels.get()
             graphDimension = graphSize.get()
 
             gS = []
-            if graphDimension == "":
+            if  graphDimension== "" :
                 gS.append(5)
                 gS.append(5)
-            else:
+            else :
                 a = graphDimension.split()
-                for i in range(0, len(a)):
+                for i in range(0,len(a)):
                     gS.append(int(a[i]))
+
+            label = []
+            if  labels_name== "" :
+                label.append("X-Data")
+                label.append("Frequency")
+            else :
+                a = labels_name.split()
+                for i in range(0,len(a)):
+                    label.append(a[i])
 
             #Finish dimension of graph
 
@@ -879,8 +947,8 @@ class DatabaseInput_SecondPage(tk.Frame):
                 x = np.arange(len(graph_dataX))
                 plt.bar(x, graph_dataY, align='center', alpha=0.5)
                 plt.xticks(x, graph_dataX)
-                plt.xlabel('Range')
-                plt.ylabel('Frequency')
+                plt.xlabel(label[0])
+                plt.ylabel(label[1])
                 ax = plt.subplot()
                 ax.axhline(y=0, color='k')
                 plt.show()
@@ -907,8 +975,8 @@ class DatabaseInput_SecondPage(tk.Frame):
                 x = np.arange(len(graph_dataX))
                 plt.bar(x, graph_dataY, align='center', alpha=0.5)
                 plt.xticks(x, graph_dataX)
-                plt.xlabel('Range')
-                plt.ylabel('Frequency')
+                plt.xlabel(label[0])
+                plt.ylabel(label[1])
                 ax = plt.subplot(211)
                 ax.axhline(y=0, color='k')
                 plt.title(("Bar Diagram"))
@@ -934,8 +1002,8 @@ class DatabaseInput_SecondPage(tk.Frame):
                 x = np.arange(len(graph_dataX))
                 plt.bar(x, graph_dataY, align='center', alpha=0.5)
                 plt.xticks(x, graph_dataX)
-                plt.xlabel('Range')
-                plt.ylabel('Frequency')
+                plt.xlabel(label[0])
+                plt.ylabel(label[1])
                 ax = plt.subplot(211)
                 ax.axhline(y=0, color='k')
                 plt.title(("Bar Diagram"))
@@ -964,8 +1032,8 @@ class DatabaseInput_SecondPage(tk.Frame):
                 x = np.arange(len(graph_dataX))
                 plt.bar(x, graph_dataY, align='center', alpha=0.5)
                 plt.xticks(x, graph_dataX)
-                plt.xlabel('Range')
-                plt.ylabel('Frequency')
+                plt.xlabel(label[0])
+                plt.ylabel(label[1])
                 ax = plt.subplot()
                 ax.axhline(y=0, color='k')
 
@@ -1038,8 +1106,6 @@ class Excel_CSV_file_FirstPage(tk.Frame):
                 for i in range(0,len(a)):
                     controller.shared_data['File_information'].append(a[i])
 
-            print(controller.shared_data['File_information'])
-
 
         def show_second_page(self):
             self.controller.show_frame("Excel_CSV_file_SecondPage")
@@ -1109,7 +1175,11 @@ class Excel_CSV_file_SecondPage(tk.Frame):
         e = tk.Entry(self, textvariable=graphSize, width=58)
         e.pack(pady=10)
 
-
+        label = tk.Label(self, text="X and Y labels",font=(self.controller.title_font, 10), anchor='w')
+        label.pack(side="top", fill='both', padx=70, pady=10)
+        both_labels = tk.StringVar()
+        e = tk.Entry(self, textvariable=both_labels, width=58)
+        e.pack(pady=10)
         #Button show
 
 
@@ -1184,17 +1254,32 @@ class Excel_CSV_file_SecondPage(tk.Frame):
 
             elif coloumn_choosen_type == 2: # fetches average data
 
+
                 result = []
-                query = df[[inputX_col, avg_col[index][1]]].groupby([inputX_col]).agg(['mean'])
-                for name in query.index:
-                    result.append([name, query.loc[name][0]])
+
+                if inputX_col == avg_col[index][1]:
+                    query = df.groupby(inputX_col).mean()
+                    for name in query.index:
+                        result.append([name, query.loc[name][0]])
+                else :
+                    query = df[[inputX_col, avg_col[index][1]]].groupby([inputX_col]).agg(['mean'])
+                    for name in query.index:
+                        result.append([name, query.loc[name][0]])
 
             elif coloumn_choosen_type == 3:# fetches Count data
 
                 result = []
-                query = df[[inputX_col, count_col[index][1]]].groupby([inputX_col]).agg(['count'])
-                for name in query.index:
-                    result.append([name, query.loc[name][0]])
+
+                if inputX_col == count_col[index][1]:
+
+                    query = df.groupby(inputX_col).count()
+                    for name in query.index:
+                        result.append([name, query.loc[name][0]])
+
+                else :
+                    query = df[[inputX_col, count_col[index][1]]].groupby([inputX_col]).agg(['count'])
+                    for name in query.index:
+                        result.append([name, query.loc[name][0]])
 
 
             #Calculation
@@ -1209,23 +1294,35 @@ class Excel_CSV_file_SecondPage(tk.Frame):
 
             pie_diagram_available = 1
             #Cheking if negetive value is contained so no pie diagram available
-            for i in range(0,len(graph_dataY)):
-                if int(graph_dataY[i])<0:
-                    pie_diagram_available = 0
-                    break
+            if type(graph_dataY[0]) is int:
+                for i in range(0,len(graph_dataY)):
+                    if int(graph_dataY[i])<0:
+                        pie_diagram_available = 0
+                        break
 
+            if type(graph_dataY[0]) is str:
+                pie_diagram_available = 0
 
-
+            labels_name = both_labels.get()
             graphDimension = graphSize.get()
 
             gS = []
-            if graphDimension == "":
+            if  graphDimension== "" :
                 gS.append(5)
                 gS.append(5)
-            else:
+            else :
                 a = graphDimension.split()
-                for i in range(0, len(a)):
+                for i in range(0,len(a)):
                     gS.append(int(a[i]))
+
+            label = []
+            if  labels_name== "" :
+                label.append("X-Data")
+                label.append("Frequency")
+            else :
+                a = labels_name.split()
+                for i in range(0,len(a)):
+                    label.append(a[i])
 
             #Finish dimension of graph
 
@@ -1237,8 +1334,8 @@ class Excel_CSV_file_SecondPage(tk.Frame):
                 x = np.arange(len(graph_dataX))
                 plt.bar(x, graph_dataY, align='center', alpha=0.5)
                 plt.xticks(x, graph_dataX)
-                plt.xlabel('Range')
-                plt.ylabel('Frequency')
+                plt.xlabel(label[0])
+                plt.ylabel(label[1])
                 ax = plt.subplot()
                 ax.axhline(y=0, color='k')
                 plt.show()
@@ -1265,8 +1362,8 @@ class Excel_CSV_file_SecondPage(tk.Frame):
                 x = np.arange(len(graph_dataX))
                 plt.bar(x, graph_dataY, align='center', alpha=0.5)
                 plt.xticks(x, graph_dataX)
-                plt.xlabel('Range')
-                plt.ylabel('Frequency')
+                plt.xlabel(label[0])
+                plt.ylabel(label[1])
                 ax = plt.subplot(211)
                 ax.axhline(y=0, color='k')
                 plt.title(("Bar Diagram"))
@@ -1292,8 +1389,8 @@ class Excel_CSV_file_SecondPage(tk.Frame):
                 x = np.arange(len(graph_dataX))
                 plt.bar(x, graph_dataY, align='center', alpha=0.5)
                 plt.xticks(x, graph_dataX)
-                plt.xlabel('Range')
-                plt.ylabel('Frequency')
+                plt.xlabel(label[0])
+                plt.ylabel(label[1])
                 ax = plt.subplot(211)
                 ax.axhline(y=0, color='k')
                 plt.title(("Bar Diagram"))
@@ -1322,8 +1419,8 @@ class Excel_CSV_file_SecondPage(tk.Frame):
                 x = np.arange(len(graph_dataX))
                 plt.bar(x, graph_dataY, align='center', alpha=0.5)
                 plt.xticks(x, graph_dataX)
-                plt.xlabel('Range')
-                plt.ylabel('Frequency')
+                plt.xlabel(label[0])
+                plt.ylabel(label[1])
                 ax = plt.subplot()
                 ax.axhline(y=0, color='k')
 
@@ -1403,7 +1500,7 @@ class error_show__pie_diagram_filepath(tk.Frame):
     def __init__(self, parent, controller):
         tk.Frame.__init__(self, parent)
         self.controller = controller
-        label = tk.Label(self, text="Can not draw Pie diagram as negetive index is here", pady=10, font=("", 10, "bold"))
+        label = tk.Label(self, text="Can not draw Pie diagram as negetive index or string is here", pady=10, font=("", 10, "bold"))
         label.pack()
         button = tk.Button(self, text="Please try again", width=50,
                            command=lambda: go_back() , pady=10)

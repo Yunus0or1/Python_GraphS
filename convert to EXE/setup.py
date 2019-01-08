@@ -15,7 +15,7 @@ executables = [cx_Freeze.Executable("GraphS.py", base=base,icon = "GraphS.ico")]
 os.environ ['TCL_LIBRARY'] ='C:\\Users\\Yunus\\AppData\\Local\\Programs\\Python\\Python36\\tcl\\tcl8.6'
 os.environ ['TK_LIBRARY'] ='C:\\Users\\Yunus\\AppData\\Local\\Programs\\Python\\Python36\\tcl\\tk8.6'
 
-packages = ["tkinter","matplotlib.pyplot","numpy","math","mysql.connector","django.db","MySQLdb","matplotlib","mysql"]
+packages = ["tkinter","matplotlib.pyplot","numpy","math","mysql.connector","django.db","MySQLdb","matplotlib","mysql","pandas"]
 options = {
     'build_exe': {
         'packages':packages,
