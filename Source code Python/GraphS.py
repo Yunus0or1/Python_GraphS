@@ -8,6 +8,7 @@ import math
 import mysql.connector
 from django.db import connection
 import MySQLdb
+import pandas as pd
 
 
 
@@ -29,6 +30,8 @@ class graphS(tk.Tk):
             "password": tk.StringVar(),
             "table_information": [],
             "database_information" : [],
+            "FilePath" : tk.StringVar(),
+            "File_information" :[],
 
 
         }
@@ -41,9 +44,12 @@ class graphS(tk.Tk):
 
         self.frames = {}
         for F in (StartPage, DirectInput, PointInput, StatisticalInputPoint, StatisticalInputRange,
-                  DatabaseInput_FirstPage,DatabaseInput_SecondPage,error_show_database
+                  DatabaseInput_FirstPage,DatabaseInput_SecondPage,Excel_CSV_file_FirstPage,Excel_CSV_file_SecondPage
+                  ,error_show_database
                   ,error_show_can_not_draw_pie_diagram
-                  ,error_show_can_not_draw_pie_diagram_database):
+                  ,error_show_can_not_draw_pie_diagram_database
+                  ,error_show_filepath
+                  ,error_show__pie_diagram_filepath):
             page_name = F.__name__
             frame = F(parent=container, controller=self)
             self.frames[page_name] = frame
@@ -79,9 +85,12 @@ class StartPage(tk.Frame):
                       command=lambda: controller.show_frame("DirectInput") )
         b2 = tk.Button(self, text="Database input",  padx=0,
                       command=lambda: controller.show_frame("DatabaseInput_FirstPage"),font=("", 12, "bold") )
+        b3 = tk.Button(self, text="Excel or CSV file input",  padx=0,
+                      command=lambda: controller.show_frame("Excel_CSV_file_FirstPage"),font=("", 12, "bold") )
 
         b1.pack(expand=1)
         b2.pack(expand=1)
+        b3.pack(expand=1)
 
 
 
@@ -972,6 +981,362 @@ class DatabaseInput_SecondPage(tk.Frame):
 
 
 
+class Excel_CSV_file_FirstPage(tk.Frame):
+
+    def __init__(self, parent, controller):
+        tk.Frame.__init__(self, parent)
+        self.controller = controller
+
+        self.labels_and_buttons()
+
+
+    def  labels_and_buttons(self):
+
+
+        controller = self.controller
+        button = tk.Button(self, text="Go to the start page",
+                           command=lambda: controller.show_frame("StartPage"),pady = 10)
+        button.pack()
+
+        label = tk.Label(self, text="Please specify the file path ", font=controller.title_font)
+        label.pack(side="top", fill="x", pady=10)
+
+        e = tk.Entry(self, textvariable=self.controller.shared_data["FilePath"], width=58)
+        e.pack(pady=7)
+
+
+        b1 = tk.Button(self, text="Click here to proceed" ,state="active",  padx=0,pady=0, font=("", 12, "bold"),width = 20,
+                      command=lambda: file_info() )
+        b1.pack(expand=1)
+        b2 = tk.Button(self, text="Proceed" ,state="disabled",  padx=0,pady=0, font=("", 12, "bold"),width = 20,
+                      command=lambda : show_second_page(self) )
+        b2.pack(expand=1)
+
+        def file_info():
+
+            b1.configure(state = "disabled")
+            b2.configure(state="active")
+
+            FilePath = controller.shared_data['FilePath'].get()
+
+
+            exception_raised = 0
+            try:
+                df = pd.read_excel(FilePath)
+            except Exception as e:
+                exception_raised = 1
+
+
+            if exception_raised ==1 :
+                b1.configure(state ="active")
+                b2.configure(state="disabled")
+                error_show_filepath()
+
+            elif(exception_raised ==0) :
+
+                a = list(df)
+                for i in range(0,len(a)):
+                    controller.shared_data['File_information'].append(a[i])
+
+            print(controller.shared_data['File_information'])
+
+
+        def show_second_page(self):
+            self.controller.show_frame("Excel_CSV_file_SecondPage")
+            page1 = self.controller.get_page("Excel_CSV_file_SecondPage")
+            page1.file_info()
+
+        def error_show_filepath():
+            controller.show_frame("error_show_filepath")
+
+
+
+
+
+class Excel_CSV_file_SecondPage(tk.Frame):
+
+    def __init__(self, parent, controller):
+        tk.Frame.__init__(self, parent)
+        self.controller = controller
+
+        button = tk.Button(self, text="Go back",width = 50,
+                           command=lambda: controller.show_frame("StartPage"), pady=10)
+        button.pack()
+
+        label = tk.Label(self, text="Please select X-axis and Y-axis data",pady = 10,font=("", 10, "bold"))
+        label.pack()
+
+
+    def file_info(self):
+
+        table_infoX = self.controller.shared_data['File_information']
+        table_infoY = table_infoX.copy()
+
+        for i in range(0,len(table_infoX)):
+            table_infoY.append("count("+table_infoX[i]+")")
+
+        for i in range(0,len(table_infoX)):
+            table_infoY.append("avg("+table_infoX[i]+")")
+
+
+
+        label = tk.Label(self, text="Select coloumn as X-axis data",pady = 10,font=("", 12, "bold"))
+        label.pack()
+        v1 = tk.StringVar()
+        v1.set(table_infoX[0])
+        w1 = tk.OptionMenu(self, v1, *table_infoX)
+        w1.config(width= 40,font=("", 12, "bold"))
+        w1.pack()
+
+
+        label = tk.Label(self, text="Select coloumn as Y-axis data",pady = 10,font=("", 12, "bold"))
+        label.pack()
+        v2 = tk.StringVar()
+        v2.set(table_infoY[0])
+        w2 = tk.OptionMenu(self, v2, *table_infoY)
+        w2.config(width= 40,font=("", 12, "bold"),pady= 7)
+        w2.pack()
+
+        #blank space text
+        label = tk.Label(self, text="    ",pady = 10,font=("", 12, "bold"))
+        label.pack()
+
+
+        label = tk.Label(self, text="Graph size[Default value (5 5) ]",
+                         font=(self.controller.title_font, 10), anchor='w')
+        label.pack(side="top", fill='both', padx=70, pady=7)
+        graphSize = tk.StringVar()
+        e = tk.Entry(self, textvariable=graphSize, width=58)
+        e.pack(pady=10)
+
+
+        #Button show
+
+
+        button = tk.Button(self, text="Draw Bar diagram", anchor='w',
+                           command=lambda: retrieve_input(1), padx=50, pady=7)
+        button.pack()
+
+        button = tk.Button(self, text="Draw pie diagram", anchor='w',
+                           command=lambda: retrieve_input(2), padx=50, pady=7)
+        button.pack()
+
+        button = tk.Button(self, text="Draw Bar and pie diagram", anchor='w',
+                           command=lambda: retrieve_input(3), padx=50, pady=7)
+        button.pack()
+
+
+        button = tk.Button(self, text="Draw both diagram and save as", anchor='w',
+                           command=lambda: retrieve_input(4), padx=70, pady=10)
+        button.pack()
+        pdfFile = tk.StringVar()
+        e = tk.Entry(self, textvariable=pdfFile, width=58)
+        e.pack(pady=10)
+
+
+        def retrieve_input(choice):
+
+
+            inputX_col = v1.get()
+            inputY_col = v2.get()
+
+
+
+            file_information = table_infoX
+            avg_col = []
+            count_col = []
+
+            for i in range(0,len(file_information)):
+                avg_col.append(["avg("+file_information[i]+")",file_information[i]])
+
+            for i in range(0,len(file_information)):
+                count_col.append(["count(" + file_information[i] + ")", file_information[i]])
+
+            #This part directs that whether count choosen or two coloumns choosen
+
+            coloumn_choosen_type = 0
+            index = 0
+            for i in range(0, len(file_information)):
+                if file_information[i] == inputY_col:
+                    coloumn_choosen_type = 1
+                    break
+
+            for i in range(0, len(avg_col)):
+                if avg_col[i][0] == inputY_col:
+                    coloumn_choosen_type = 2
+                    index = i
+                    break
+
+            for i in range(0, len(count_col)):
+                if count_col[i][0] == inputY_col:
+                    coloumn_choosen_type = 3
+                    index = i
+                    break
+
+
+            df = pd.read_excel(self.controller.shared_data['FilePath'].get())
+
+            if coloumn_choosen_type == 1:
+
+                result = []
+                for index, row in df.iterrows():
+                    result.append([row[inputX_col], row[inputY_col]])
+
+            elif coloumn_choosen_type == 2: # fetches average data
+
+                result = []
+                query = df[[inputX_col, avg_col[index][1]]].groupby([inputX_col]).agg(['mean'])
+                for name in query.index:
+                    result.append([name, query.loc[name][0]])
+
+            elif coloumn_choosen_type == 3:# fetches Count data
+
+                result = []
+                query = df[[inputX_col, count_col[index][1]]].groupby([inputX_col]).agg(['count'])
+                for name in query.index:
+                    result.append([name, query.loc[name][0]])
+
+
+            #Calculation
+
+            graph_dataX = []
+            graph_dataY = []
+            for i in range(0,len(result)):
+                graph_dataX.append(result[i][0])
+                graph_dataY.append(result[i][1])
+
+
+
+            pie_diagram_available = 1
+            #Cheking if negetive value is contained so no pie diagram available
+            for i in range(0,len(graph_dataY)):
+                if int(graph_dataY[i])<0:
+                    pie_diagram_available = 0
+                    break
+
+
+
+            graphDimension = graphSize.get()
+
+            gS = []
+            if graphDimension == "":
+                gS.append(5)
+                gS.append(5)
+            else:
+                a = graphDimension.split()
+                for i in range(0, len(a)):
+                    gS.append(int(a[i]))
+
+            #Finish dimension of graph
+
+
+
+            if choice == 1 :
+                plt.rcParams["figure.figsize"] = (gS[0], gS[1])
+                f = plt.figure()
+                x = np.arange(len(graph_dataX))
+                plt.bar(x, graph_dataY, align='center', alpha=0.5)
+                plt.xticks(x, graph_dataX)
+                plt.xlabel('Range')
+                plt.ylabel('Frequency')
+                ax = plt.subplot()
+                ax.axhline(y=0, color='k')
+                plt.show()
+
+
+            if choice == 2 and pie_diagram_available == 1:
+                plt.rcParams["figure.figsize"] = (gS[0], gS[1])
+                f = plt.figure()
+                plt.pie(graph_dataY, labels=graph_dataX,
+                        autopct='%1.1f%%', shadow=True, startangle=140)
+                plt.axis('equal')
+                plt.show()
+
+
+
+            if choice == 2 and pie_diagram_available == 0:
+                self.controller.show_frame("error_show__pie_diagram_filepath")
+
+
+            if choice == 3 and pie_diagram_available == 1:
+                plt.rcParams["figure.figsize"] = (gS[0], gS[1])
+                f = plt.figure()
+                plt.subplot(211)
+                x = np.arange(len(graph_dataX))
+                plt.bar(x, graph_dataY, align='center', alpha=0.5)
+                plt.xticks(x, graph_dataX)
+                plt.xlabel('Range')
+                plt.ylabel('Frequency')
+                ax = plt.subplot(211)
+                ax.axhline(y=0, color='k')
+                plt.title(("Bar Diagram"))
+                plt.subplot(212)
+                plt.pie(graph_dataY, labels=graph_dataX,
+                        autopct='%1.1f%%', shadow=True, startangle=140)
+                plt.axis('equal')
+                plt.title(("Pie Diagram"))
+                plt.show()
+
+
+
+            if choice == 3 and pie_diagram_available == 0:
+                self.controller.show_frame("error_show__pie_diagram_filepath")
+
+
+
+            #File saving
+            if choice == 4 and pie_diagram_available == 1:
+                plt.rcParams["figure.figsize"] = (gS[0], gS[1])
+                f = plt.figure()
+                plt.subplot(211)
+                x = np.arange(len(graph_dataX))
+                plt.bar(x, graph_dataY, align='center', alpha=0.5)
+                plt.xticks(x, graph_dataX)
+                plt.xlabel('Range')
+                plt.ylabel('Frequency')
+                ax = plt.subplot(211)
+                ax.axhline(y=0, color='k')
+                plt.title(("Bar Diagram"))
+
+                plt.subplot(212)
+                plt.pie(graph_dataY, labels=graph_dataX,
+                        autopct='%1.1f%%', shadow=True, startangle=140)
+                plt.axis('equal')
+                plt.title(("Pie Diagram"))
+
+
+
+                pdfFileName = pdfFile.get()
+                if pdfFileName == "":
+                    f.savefig("graph.pdf", bbox_inches='tight')
+                else:
+                    f.savefig(pdfFileName + ".pdf", bbox_inches='tight')
+
+                plt.show()
+
+
+
+            if choice == 4 and pie_diagram_available == 0:
+                plt.rcParams["figure.figsize"] = (gS[0], gS[1])
+                f = plt.figure()
+                x = np.arange(len(graph_dataX))
+                plt.bar(x, graph_dataY, align='center', alpha=0.5)
+                plt.xticks(x, graph_dataX)
+                plt.xlabel('Range')
+                plt.ylabel('Frequency')
+                ax = plt.subplot()
+                ax.axhline(y=0, color='k')
+
+                pdfFileName = pdfFile.get()
+
+                if pdfFileName == "":
+                    f.savefig("graph.pdf", bbox_inches='tight')
+                else:
+                    f.savefig(pdfFileName + ".pdf", bbox_inches='tight')
+
+                plt.show()
+
+
 
 class error_show_database(tk.Frame):
 
@@ -988,6 +1353,7 @@ class error_show_database(tk.Frame):
 
         def show_first_page():
             self.controller.show_frame("DatabaseInput_FirstPage")
+
 
 class error_show_can_not_draw_pie_diagram(tk.Frame):
 
@@ -1016,6 +1382,35 @@ class error_show_can_not_draw_pie_diagram_database(tk.Frame):
 
         def go_back():
             self.controller.show_frame("DatabaseInput_SecondPage")
+
+
+class error_show_filepath(tk.Frame):
+
+    def __init__(self, parent, controller):
+        tk.Frame.__init__(self, parent)
+        self.controller = controller
+        label = tk.Label(self, text="Can not find the file", pady=10, font=("", 10, "bold"))
+        label.pack()
+        button = tk.Button(self, text="Please try again", width=50,
+                           command=lambda: go_back() , pady=10)
+        button.pack()
+
+        def go_back():
+            self.controller.show_frame("Excel_CSV_file_FirstPage")
+
+class error_show__pie_diagram_filepath(tk.Frame):
+
+    def __init__(self, parent, controller):
+        tk.Frame.__init__(self, parent)
+        self.controller = controller
+        label = tk.Label(self, text="Can not draw Pie diagram as negetive index is here", pady=10, font=("", 10, "bold"))
+        label.pack()
+        button = tk.Button(self, text="Please try again", width=50,
+                           command=lambda: go_back() , pady=10)
+        button.pack()
+
+        def go_back():
+            self.controller.show_frame("Excel_CSV_file_SecondPage")
 
 if __name__ == "__main__":
     app = graphS()
